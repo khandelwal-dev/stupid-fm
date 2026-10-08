@@ -1,4 +1,34 @@
 import { generateText } from "ai";
 import { groq } from "@ai-sdk/groq";
 import { NextResponse } from "next/server";
-export async function POST(req:Request){try{const {message}=await req.json();if(!message)return NextResponse.json({error:"Tell me what you want to hear."},{status:400});if(!process.env.GROQ_API_KEY)return NextResponse.json({text:"The AI brain is ready, but GROQ_API_KEY hasn't been added to Vercel yet."});const {text}=await generateText({model:groq("llama-3.3-70b-versatile"),system:"You are stupid.fm's music concierge. Be concise, playful, and useful. Help users describe music, identify likely tracks/artists, and make recommendations. Never pretend you have verified access to a complete music catalogue or a playable URL. This is the prototype; audio resolution will be added separately.",prompt:message});return NextResponse.json({text});}catch(e){return NextResponse.json({error:"Agent error. The music goblin is currently asleep."},{status:500})}}
+
+export async function POST(req: Request) {
+  try {
+    const { message } = await req.json();
+
+    if (!message) {
+      return NextResponse.json({ error: "Tell me what you want to hear." }, { status: 400 });
+    }
+
+    if (!process.env.GROQ_API_KEY) {
+      return NextResponse.json({
+        text: "The AI brain is ready, but GROQ_API_KEY hasn't been added to Vercel yet.",
+      });
+    }
+
+    const { text } = await generateText({
+      model: groq("openai/gpt-oss-120b"),
+      system:
+        "You are stupid.fm's music concierge. Be concise, playful, and useful. Help users describe music, identify likely tracks/artists, and make recommendations. Never pretend you have verified access to a complete music catalogue or a playable URL. This is the prototype; audio resolution will be added separately.",
+      prompt: message,
+    });
+
+    return NextResponse.json({ text });
+  } catch (e) {
+    console.error("stupid.fm agent error:", e);
+    return NextResponse.json(
+      { error: "Agent error. The music goblin is currently asleep." },
+      { status: 500 }
+    );
+  }
+}
